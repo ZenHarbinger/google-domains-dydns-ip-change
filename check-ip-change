@@ -18,7 +18,6 @@
 
 import argparse
 import dns.resolver
-import json
 import jsonpickle
 import os.path
 import re
