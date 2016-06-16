@@ -35,10 +35,18 @@ class GoogleDomainsConfig(object):
         self.password = password
         self.email = email
 
-def getServerIP(server):
-    """Gets the DNS Specified IP of the requested name."""
-    answers = dns.resolver.query(server, 'A')
-    return str(answers[0])
+    def getServerIP(self):
+        """Gets the DNS Specified IP of the requested name."""
+        answers = dns.resolver.query(self.domainname, 'A')
+        return str(answers[0])
+
+    def updateDns(self, newIp):
+        """Performs a GET which will update the Synthetic DNS record hosted through Google Domains."""
+        params = urllib.parse.urlencode({'hostname': self.domainname, 'ip': newIp})
+        update_url = "https://" + self.username + ":" + self.password + "@domains.google.com/nic/update?" + str(params)
+        opener = urllib.request.FancyURLopener()
+        opener.version = "Chrome/41.0 " + self.email
+        f = opener.open(update_url)
 
 def getLocalIP():
     """Get the public IP of the current network (works behind firewall)."""
@@ -47,14 +55,6 @@ def getLocalIP():
     theIP = re.findall(r"\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}", str(request))
     if len(theIP) > 0 :
         return theIP[0]
-
-def updateDns(newIp, gdc):
-    """Performs a GET which will update the Synthetic DNS record hosted through Google Domains."""
-    params = urllib.parse.urlencode({'hostname': gdc.domainname, 'ip': newIp})
-    update_url = "https://" + gdc.username + ":" + gdc.password + "@domains.google.com/nic/update?" + str(params)
-    opener = urllib.request.FancyURLopener()
-    opener.version = "Chrome/41.0 " + gdc.email
-    f = opener.open(update_url)
 
 def loadConfigs(cfg_path):
     """Load the JSON file into an object list"""
@@ -137,11 +137,11 @@ if __name__ == "__main__":
         local = getLocalIP()
         print ("Local IP: " + local)
         for gdc in gdc_list:
-            server = getServerIP(str(gdc.domainname))
+            server = gdc.getServerIP()
             print ("DNS Specified IP: " + server)
             if local != server:
                 print ("Updating DNS Record: " + gdc.domainname + " to " + local)
-                updateDns(local, gdc);
+                gdc.updateDns(local);
                 pass
             else:
                 print ("No change in DNS record: " + gdc.domainname)
