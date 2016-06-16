@@ -1,6 +1,6 @@
 # check-ip-change
 
-A script for detecting a change in Google Domains Synthetic records.
+A script for detecting a change in Google Domains dynamic DNS records.
 
 ## Configure
 
