@@ -1,4 +1,4 @@
-# google-domains-synthetic-ip-change
+# check-ip-change
 
 A script for detecting a change in Google Domains Synthetic records.
 
@@ -22,7 +22,30 @@ A script for detecting a change in Google Domains Synthetic records.
 - [python3-dnspython](http://www.dnspython.org/)
 - [python3-jsonpickle](https://jsonpickle.github.io/)
 
-### Ubuntu
+### Ubuntu Server
+
 ```
 sudo apt install python3-xdg python3-dnspython python3-jsonpickle
 ```
+
+### Ubuntu Desktop
+
+```
+sudo apt install python3-dnspython python3-jsonpickle
+```
+
+python3-xdg is already available in the Desktop.
+
+### Fedora Server
+
+```
+sudo dnf install python3-pyxdg python3-dns python3-jsonpickle
+```
+
+### Fedora Desktop
+
+```
+sudo dnf install python3-dns python3-jsonpickle
+```
+
+python3-pyxdg is already available in the Desktop.

@@ -78,6 +78,10 @@ if __name__ == "__main__":
     cfg_dir = xdg.BaseDirectory.xdg_config_home
     cfg_file = "check-ip-change.json"
     cfg_path = os.path.join(cfg_dir, cfg_file)
+
+    if not os.path.isdir(cfg_dir):
+        os.makedirs(cfg_dir)
+
     # this is going to be ~/.config/check-ip-change.json
     gdc_list = loadConfigs(cfg_path)
 
