@@ -1,2 +1,16 @@
 # google-domains-synthetic-ip-change
-If using Synthetic records with Google Domains and a home computer, this can detect a variation in an IP and update the record.
+
+A script for detecting a change in Google Domains Synthetic records.
+
+## Configure
+
+- Fill in appropriate information in the check-ip-change.json file
+- Place the file in your `~/.config/` directory
+
+## Uses
+
+- cron job for updating IP addresses automatically.
+
+## Future work
+
+- Add the ability to add/remove/view configurations on the command line.
