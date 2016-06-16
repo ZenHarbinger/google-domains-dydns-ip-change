@@ -16,11 +16,13 @@
    limitations under the License.
 """
 
+import argparse
 import dns.resolver
 import json
 import jsonpickle
 import os.path
 import re
+import sys
 import urllib.parse
 import urllib.request
 import xdg.BaseDirectory
@@ -55,18 +57,82 @@ def updateDns(newIp, gdc):
     opener.version = "Chrome/41.0 " + gdc.email
     f = opener.open(update_url)
 
+def loadConfigs(cfg_path):
+    """Load the JSON file into an object list"""
+    if os.path.isfile(cfg_path):
+        fp = open(cfg_path)
+        gdc_list = jsonpickle.decode(fp.read())
+        fp.close()
+        return gdc_list
+    else:
+        return []
+
 if __name__ == "__main__":
-    """TODO: Add ability to add/remove configurations through command line."""
+    # TODO: be able to pass in all add/remove arguments on the command line instead of being interactive.
+    parser = argparse.ArgumentParser(description='Update Google Domains Synthetic Records.')
+    parser.add_argument('--list', action='store_true', help='list configured records')
+    parser.add_argument('--add', action='store_true', help='add a new configuration')
+    parser.add_argument('--remove', action='store_true', help='remove a configuration')
+    #parser.add_argument('--edit', action='store_true', help='edit a configuration')
+
     cfg_dir = xdg.BaseDirectory.xdg_config_home
     cfg_file = "check-ip-change.json"
     cfg_path = os.path.join(cfg_dir, cfg_file)
     # this is going to be ~/.config/check-ip-change.json
-    if os.path.isfile(cfg_path):
+    gdc_list = loadConfigs(cfg_path)
+
+    args = parser.parse_args()
+    if args.list:
+        counter = 1
+        for gdc in gdc_list:
+            print("[ " + str(counter) + " ] " + gdc.domainname)
+            print("--------------------------")
+            print("username: " + gdc.username)
+            print("password: " + gdc.password)
+            print("email: " + gdc.email)
+            print()
+            counter += 1
+        if counter == 1:
+            print (cfg_path + ": does not exist or is not configured.")
+        sys.exit(0)
+    if args.add:
+        domain = input("Domain: ")
+        user = input("User: ")
+        password = input("Password: ")
+        email = input("E-Mail: ")
+        gdc = GoogleDomainsConfig(domain, user, password, email)
+        gdc_list.append(gdc)
+
+        fp = open(cfg_path, 'w')
+        fp.write(jsonpickle.encode(gdc_list))
+        fp.close()
+
+        sys.exit(0)
+    if args.remove:
+        domain = input("Domain to Remove (Index or Name): ")
+        if(str.isdigit(domain)):
+            index = int(domain) - 1
+            del gdc_list[index]
+        else:
+            index = -1
+            counter = 0;
+            for gdc in gdc_list:
+                if gdc.domainname == domain:
+                    index = counter
+                counter += 1
+            if index >= 0:
+                del gdc_list[index]
+        fp = open(cfg_path, 'w')
+        fp.write(jsonpickle.encode(gdc_list))
+        fp.close()
+
+        sys.exit(0)
+    # if args.edit:
+    #     sys.exit(0)
+
+    if (len(gdc_list) > 0):
         local = getLocalIP()
         print ("Local IP: " + local)
-        fp = open(cfg_path)
-        gdc_list = jsonpickle.decode(fp.read())
-        fp.close()
         for gdc in gdc_list:
             server = getServerIP(str(gdc.domainname))
             print ("DNS Specified IP: " + server)
@@ -78,4 +144,4 @@ if __name__ == "__main__":
                 print ("No change in DNS record: " + gdc.domainname)
                 pass
     else:
-        print (cfg_path + ": DOES NOT EXISTS")
+        print (cfg_path + ": does not exist or is not configured.")
