@@ -42,7 +42,7 @@ class GoogleDomainsConfig(object):
 
     def updateDns(self, newIp):
         """Performs a GET which will update the Synthetic DNS record hosted through Google Domains."""
-        params = urllib.parse.urlencode({'hostname': self.domainname, 'ip': newIp})
+        params = urllib.parse.urlencode({'hostname': self.domainname, 'myip': newIp})
         update_url = "https://" + self.username + ":" + self.password + "@domains.google.com/nic/update?" + str(params)
         opener = urllib.request.FancyURLopener()
         opener.version = "Chrome/41.0 " + self.email
